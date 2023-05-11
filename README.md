@@ -1,4 +1,4 @@
-##Version Facil
+## Version Facil
 
 ## 1.1 Averiguar si una carpeta contiene un archivo con un nombre dado
 ![image](https://github.com/pdepviernestm/2023-tpf-grupal-bondiola/assets/101006860/c7b3d631-7d75-4b3d-a369-38da8344f9f2)
