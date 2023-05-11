@@ -11,3 +11,5 @@ Dada una carpeta pdep con 2 archivos, "leeme.md" y "vacio.md". Se realizan 2 acc
 ## 3 Determinar si un commit es inutil para una carpeta, lo cual se deduce de que la carpeta quede igual que antes luego de "cometerlo". 
 
 ![image](https://github.com/pdepviernestm/2023-tpf-grupal-bondiola/assets/101006860/b25e6c15-d6b8-494d-8b7c-62749c97a95c)
+
+##4 En este caso no se puede realizar ya que cada commit tiene 1 solo cambio
