@@ -20,12 +20,11 @@ pdep :: Carpeta
 pdep = UnaCarpeta "pdep" []
 
 -- Orden superior
--- commit comando nombreArchivo =
 obtenerNombreArchivo :: Archivo -> String
 obtenerNombreArchivo archivo = nombreArchivo archivo
 
 comprobarSiExisteArchivo :: String -> Carpeta -> Bool
-comprobarSiExisteArchivo nombreArchivo carpeta = elem nombreArchivo (map obtenerNombreArchivo (archivos carpeta))
+comprobarSiExisteArchivo nombreArchivo carpeta = elem nombreArchivo (map (obtenerNombreArchivo) (archivos carpeta))
 
 -- CREAR
 crear :: String -> Carpeta -> Carpeta
@@ -73,43 +72,17 @@ sacar nombreArchivo inicio fin carpeta
   | not (comprobarSiExisteArchivo nombreArchivo carpeta) = carpeta
   | otherwise = UnaCarpeta (nombreCarpeta carpeta) (map (evaluarSacarContenido nombreArchivo inicio fin) (archivos carpeta))
 
+
+-- COMMIT
+
 commit :: Carpeta -> String -> Carpeta -> Carpeta
 commit carpeta descripcion cambio = cambio
 
--- --commit::Carpeta ->[Carpeta->b->Carpeta]-> String-> Carpeta
--- commit :: Foldable t => Carpeta ->
--- commit carpeta listaOperaciones descripcion = foldl ((.) carpeta listaOperaciones)
-
--- commit pdep [crear "leeme.md" pdep ,crear "parcial.hs" pdep , agregar "Este es un TP" "leeme.md" pdep] "Descripcion inicial"
-
--- commit1 :: Carpeta->(String->Carpeta->Carpeta)->String -> Carpeta
--- commit1 carpeta listaOperaciones descripcion = foldl (.) carpeta [crear]
-
--- pdep . (crear "nuevo.txt")
-
--- composeFunctions :: [(a -> a)] -> (a -> a)
--- composeFunctions fs = foldr (.) id fs
-
--- composedFunc :: [String -> String] ->Carpeta ->Carpeta
--- composedFunc = composeFunctions [crear, agregar]
-
--- commit pdep "Agregar Este es un TP" (agregar "Este es un TP" "leeme.md" (commit pdep "Crear parcial.hs" (crear "parcial.hs" (commit pdep "Commit inicial" (crear "leeme.md" pdep)))))
-
--- esInutil::Carpeta->Carpeta->Bool
--- esInutil carpeta cambio
---  |carpeta==commit carpeta "asd" cambio =True
---  |otherwise = False
-
 esInutil :: Carpeta -> Carpeta -> Bool
-esInutil carpeta carpeta2
-  | carpeta == carpeta2 = True
-  | otherwise = False
+esInutil carpeta carpeta2 = carpeta == carpeta2 
 
--- CommitConFold :: [(Archivo -> Archivo)] -> (Archivo -> Archivo)
--- CommitConFold = foldl (.) id
+commit2::Carpeta->[Carpeta->Carpeta]->String->Carpeta
+commit2 carpeta listaOperaciones descripcion = foldl (flip($)) carpeta listaOperaciones
 
---  > CommitConFold [crear "leeme.md" pdep ,crear "parcial.hs" pdep , agregar "Este es un TP" "leeme.md" pdep] carpeta
-
--- esInutil (pdep) (commit pdep "un cambio" (crear "leeme.md" pdep))
--- true : esInutil pdep (commit pdep "desc" (vaciar pdep))
--- falso: esInutil pdep (commit pdep "desc" (crear "leeme.md" pdep))
+dejaDeSerInutil::Carpeta->[Carpeta->Carpeta]->Bool
+dejaDeSerInutil carpeta cambios = commit2 carpeta cambios "asd" /= commit2 carpeta (reverse cambios) "asd"
