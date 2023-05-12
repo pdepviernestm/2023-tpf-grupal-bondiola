@@ -14,4 +14,5 @@ Dada una carpeta pdep con 2 archivos, "leeme.md" y "vacio.md". Se realizan 2 acc
 
 ![image](https://github.com/pdepviernestm/2023-tpf-grupal-bondiola/assets/101006860/b25e6c15-d6b8-494d-8b7c-62749c97a95c)
 
-##4 En este caso no se puede realizar ya que cada commit tiene 1 solo cambio
+## 4 Determinar si un commit que resulta inutil para una carpeta, dejaría de serlo si se realizaran sus cambios en la misma carpeta en orden inverso.  
+En este caso no se puede realizar ya que cada commit tiene 1 solo cambio
