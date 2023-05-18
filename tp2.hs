@@ -1,40 +1,39 @@
+data Carpeta = UnaCarpeta
+  { nombreCarpeta :: String,
+    archivos :: [Archivo],
+    branchActual :: Int,
+    branches :: [Branch]
+  }
+
 data Archivo = UnArchivo
   { nombreArchivo :: String,
     contenido :: String
   }
   deriving (Show, Eq)
 
-data Carpeta = UnaCarpeta
-  { nombreCarpeta :: String,
-    archivos :: [Archivo]
+data Branch = UnaBranch
+  { nombreBranch :: String,
+    commits :: [Commit]
   }
-  deriving (Show, Eq)
 
-leeme :: Archivo
-leeme = UnArchivo "leeme.md" "hola que hace"
-
-vacio :: Archivo
-vacio = UnArchivo "vacio.md" ""
-
-pdep :: Carpeta
-pdep = UnaCarpeta "pdep" []
-
--- Orden superior
-obtenerNombreArchivo :: Archivo -> String
-obtenerNombreArchivo archivo = nombreArchivo archivo
-
-comprobarSiExisteArchivo :: String -> Carpeta -> Bool
-comprobarSiExisteArchivo nombreArchivo carpeta = elem nombreArchivo (map (obtenerNombreArchivo) (archivos carpeta))
+data Commit = UnCommit
+  { identificador :: Int,
+    descripcion :: String,
+    listaOperaciones :: [Carpeta -> Carpeta]
+  }
 
 -- CREAR
+comprobarSiExisteArchivo :: String -> Carpeta -> Bool
+comprobarSiExisteArchivo nombreArchivo1 carpeta = elem nombreArchivo1 (map nombreArchivo (archivos carpeta))
+
 crear :: String -> Carpeta -> Carpeta
 crear nombreArchivo carpeta
   | comprobarSiExisteArchivo nombreArchivo carpeta = carpeta
-  | otherwise = UnaCarpeta (nombreCarpeta carpeta) (archivos carpeta ++ [UnArchivo nombreArchivo ""])
+  | otherwise = UnaCarpeta (nombreCarpeta carpeta) (archivos carpeta ++ [UnArchivo nombreArchivo ""]) (branchActual carpeta) []
 
 -- VACIAR
 vaciar :: Carpeta -> Carpeta
-vaciar carpeta = UnaCarpeta (nombreCarpeta carpeta) []
+vaciar carpeta = UnaCarpeta (nombreCarpeta carpeta) [] (branchActual carpeta) []
 
 -- ELIMINAR
 evaluarArchivo :: String -> Archivo -> Bool
@@ -45,7 +44,7 @@ evaluarArchivo nombreArchivo1 archivo1
 eliminar :: String -> Carpeta -> Carpeta
 eliminar nombreArchivo carpeta
   | not (comprobarSiExisteArchivo nombreArchivo carpeta) = carpeta
-  | otherwise = UnaCarpeta (nombreCarpeta carpeta) (filter (evaluarArchivo nombreArchivo) (archivos carpeta))
+  | otherwise = UnaCarpeta (nombreCarpeta carpeta) (filter (evaluarArchivo nombreArchivo) (archivos carpeta)) (branchActual carpeta) (branches carpeta)
 
 -- AGREGAR
 evaluarAplicarContenido :: String -> String -> Archivo -> Archivo
@@ -56,7 +55,7 @@ evaluarAplicarContenido nombreArchivo1 contenidoNuevo archivo1
 agregar :: String -> String -> Carpeta -> Carpeta
 agregar contenidoNuevo nombreArchivo carpeta
   | not (comprobarSiExisteArchivo nombreArchivo carpeta) = carpeta
-  | otherwise = UnaCarpeta (nombreCarpeta carpeta) (map (evaluarAplicarContenido nombreArchivo contenidoNuevo) (archivos carpeta))
+  | otherwise = UnaCarpeta (nombreCarpeta carpeta) (map (evaluarAplicarContenido nombreArchivo contenidoNuevo) (archivos carpeta)) (branchActual carpeta) (branches carpeta)
 
 -- SACAR
 recortarString :: String -> Int -> Int -> String
@@ -70,19 +69,40 @@ evaluarSacarContenido nombreArchivo1 inicio fin archivo1
 sacar :: String -> Int -> Int -> Carpeta -> Carpeta
 sacar nombreArchivo inicio fin carpeta
   | not (comprobarSiExisteArchivo nombreArchivo carpeta) = carpeta
-  | otherwise = UnaCarpeta (nombreCarpeta carpeta) (map (evaluarSacarContenido nombreArchivo inicio fin) (archivos carpeta))
-
+  | otherwise = UnaCarpeta (nombreCarpeta carpeta) (map (evaluarSacarContenido nombreArchivo inicio fin) (archivos carpeta)) (branchActual carpeta) (branches carpeta)
 
 -- COMMIT
 
 commit :: Carpeta -> String -> Carpeta -> Carpeta
 commit carpeta descripcion cambio = cambio
 
-esInutil :: Carpeta -> Carpeta -> Bool
-esInutil carpeta carpeta2 = carpeta == carpeta2 
+aplicarCommits :: Carpeta -> [Commit] -> Carpeta
+aplicarCommits carpeta commits = foldl (flip ($)) carpeta (foldl1 (++) (map listaOperaciones commits))
 
-commit2::Carpeta->[Carpeta->Carpeta]->String->Carpeta
-commit2 carpeta listaOperaciones descripcion = foldl (flip($)) carpeta listaOperaciones
+-- esInutil :: Carpeta -> Carpeta -> Bool
+-- esInutil carpeta carpeta2 = carpeta == carpeta2
 
-dejaDeSerInutil::Carpeta->[Carpeta->Carpeta]->Bool
-dejaDeSerInutil carpeta cambios = commit2 carpeta cambios "asd" /= commit2 carpeta (reverse cambios) "asd"
+-- dejaDeSerInutil :: Carpeta -> [Carpeta -> Carpeta] -> Bool
+-- dejaDeSerInutil carpeta cambios = commit2 carpeta cambios "asd" /= commit2 carpeta (reverse cambios) "asd"
+
+-- PARTE II
+carpeta1 = UnaCarpeta "carpetaPrueba" [] 0 [UnaBranch "main" []]
+
+existeBranch :: Carpeta -> String -> Bool
+existeBranch carpeta nombreBranch1 = elem nombreBranch1 (map (nombreBranch) (branches carpeta))
+
+evaluarBranch :: String -> Branch -> Bool
+evaluarBranch nombreBranch1 branch1
+  | nombreBranch branch1 == nombreBranch1 = True
+  | otherwise = False
+
+obtenerBranchPorNombre :: String -> Carpeta -> Branch
+obtenerBranchPorNombre name folder = head (filter (evaluarBranch name) (branches folder))
+
+checkout :: Carpeta -> String -> Carpeta
+checkout carpeta1 nombreBranch
+  | existeBranch carpeta1 nombreBranch = aplicarCommits carpeta1 (commits (obtenerBranchPorNombre nombreBranch carpeta1))
+  | otherwise = UnaCarpeta (nombreCarpeta carpeta1) (archivos carpeta1) (branchActual carpeta1 + 1) (branches carpeta1 ++ [UnaBranch nombreBranch (commits (branches carpeta1 !! branchActual carpeta1))])
+
+checkout2 :: Carpeta -> String -> Int -> Carpeta
+checkout2 carpeta1 nombreBranch primerosNCommits = aplicarCommits carpeta1 (take primerosNCommits (commits (obtenerBranchPorNombre nombreBranch carpeta1)))

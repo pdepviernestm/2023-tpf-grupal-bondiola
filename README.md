@@ -16,3 +16,5 @@ Dada una carpeta pdep con 2 archivos, "leeme.md" y "vacio.md". Se realizan 2 acc
 
 ## 4 Determinar si un commit que resulta inutil para una carpeta, dejaría de serlo si se realizaran sus cambios en la misma carpeta en orden inverso.  
 En este caso no se puede realizar ya que cada commit tiene 1 solo cambio
+
+## PARTE 2 
