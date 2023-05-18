@@ -86,7 +86,13 @@ aplicarCommits carpeta commits = foldl (flip ($)) carpeta (foldl1 (++) (map list
 -- dejaDeSerInutil carpeta cambios = commit2 carpeta cambios "asd" /= commit2 carpeta (reverse cambios) "asd"
 
 -- PARTE II
-carpeta1 = UnaCarpeta "carpetaPrueba" [] 0 [UnaBranch "main" []]
+
+commit1 = UnCommit 1 "vaciar carpeta" [vaciar]
+
+commit2 = UnCommit 1 "añadir 2 archivos: nuevo.txt (con contenido) y nuevo2.txt" [crear "nuevo.txt", crear "nuevo2.txt", agregar "Hola" "nuevo.txt"]
+
+carpeta1 :: Carpeta
+carpeta1 = UnaCarpeta "carpetaPrueba" [] 0 [UnaBranch "main" [commit1], UnaBranch "alternativa" [commit2], UnaBranch "alternativa2" [commit2, commit1]]
 
 existeBranch :: Carpeta -> String -> Bool
 existeBranch carpeta nombreBranch1 = elem nombreBranch1 (map (nombreBranch) (branches carpeta))
